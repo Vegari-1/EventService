@@ -90,14 +90,15 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-// Run all migrations
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
+// Run all migrations if Docker container
+if (dbHost != null)
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
 
-    var context = services.GetRequiredService<AppDbContext>();
-    context.Database.Migrate();
-}
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+    }
 
 // Configure the HTTP request pipeline.
 if (builder.Environment.IsDevelopment())
@@ -114,7 +115,7 @@ app.UseMetricServer();
 
 app.Run();
 
-namespace ProfileService
+namespace EventService
 {
     public partial class Program { }
 }

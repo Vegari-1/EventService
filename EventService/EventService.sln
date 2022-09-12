@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventService.Service", "Eve
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventService.UnitTests", "EventService.UnitTests\EventService.UnitTests.csproj", "{8265DDF0-09E4-424B-AE59-E6EDA153ECCA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventService.IntegrationTests", "EventService.IntegrationTests\EventService.IntegrationTests.csproj", "{EA9E3F4E-3B4A-4E60-8B5A-312AFADB606A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{8265DDF0-09E4-424B-AE59-E6EDA153ECCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8265DDF0-09E4-424B-AE59-E6EDA153ECCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8265DDF0-09E4-424B-AE59-E6EDA153ECCA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA9E3F4E-3B4A-4E60-8B5A-312AFADB606A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA9E3F4E-3B4A-4E60-8B5A-312AFADB606A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA9E3F4E-3B4A-4E60-8B5A-312AFADB606A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA9E3F4E-3B4A-4E60-8B5A-312AFADB606A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
