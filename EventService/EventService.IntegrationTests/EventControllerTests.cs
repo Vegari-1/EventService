@@ -1,15 +1,27 @@
 using EventService.Model;
-using EventService.Repository.Interface;
-using Moq;
+using EventService.Repository;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Xunit;
-using System.Linq;
 
-namespace EventService.UnitTests
+namespace EventService.IntegrationTests
 {
-    public class EventServiceTest
+    public class EventControllerTests : IClassFixture<IntegrationWebApplicationFactory<Program, AppDbContext>>
     {
+        private readonly IntegrationWebApplicationFactory<Program, AppDbContext> _factory;
+        private readonly HttpClient _client;
+
+        public EventControllerTests(IntegrationWebApplicationFactory<Program, AppDbContext> factory)
+        {
+            _factory = factory;
+            _client = _factory.CreateClient();
+        }
+
+        private static readonly string schemaName = "events";
+        private static readonly string tableName = "Events";
         private static readonly Guid id1 = Guid.NewGuid();
         private static readonly DateTime timestamp1 = DateTime.MinValue;
         private static readonly string source = "source";
@@ -20,16 +32,11 @@ namespace EventService.UnitTests
         private static readonly Guid id2 = Guid.NewGuid();
         private static readonly DateTime timestamp2 = DateTime.MaxValue;
 
-        private static Event event1;
-        private static Event event2;
-        private static List<Event> events;
-
-        private static Mock<IEventRepository> mockEventRepo = new Mock<IEventRepository>();
-        private static Service.EventService eventService = new Service.EventService(mockEventRepo.Object);
-
-        private static void SetUp()
+        [Fact]
+        public async Task GetEvents_EventList()
         {
-            event1 = new Event
+            // Given
+            Event event1 = new Event
             {
                 Id = id1,
                 Timestamp = timestamp1,
@@ -39,7 +46,7 @@ namespace EventService.UnitTests
                 StatusCode = statusCode,
                 StatusCodeText = statusCodeText
             };
-            event2 = new Event
+            Event event2 = new Event
             {
                 Id = id2,
                 Timestamp = timestamp2,
@@ -49,28 +56,19 @@ namespace EventService.UnitTests
                 StatusCode = statusCode,
                 StatusCodeText = statusCodeText
             };
-            events = new List<Event>
-            {
-                event2,
-                event1
-            };
-        }
+            _factory.Insert(schemaName, tableName, event1);
+            _factory.Insert(schemaName, tableName, event2);
 
-        [Fact]
-        public async void GetEvents_EventList()
-        {
-            SetUp();
+            // When
+            var response = await _client.GetAsync("/api/event");
 
-            mockEventRepo
-               .Setup(repository => repository.GetAllSortByTimestamp())
-               .ReturnsAsync(events);
+            // Then
+            response.EnsureSuccessStatusCode();
+            var responseContentString = await response.Content.ReadAsStringAsync();
+            var responseContentObject = JsonConvert.DeserializeObject<List<Event>>(responseContentString);
 
-            var response = await eventService.GetAllSortByTimestamp();
-
-            Assert.IsType<List<Event>>(response);
-            var responseList = response.ToList();
-            Assert.True(responseList.Count == 2);
-            var response1 = responseList[0];
+            Assert.True(responseContentObject.Count == 2);
+            var response1 = responseContentObject[0];
             Assert.Equal(event2.Id, response1.Id);
             Assert.Equal(event2.Timestamp, response1.Timestamp);
             Assert.Equal(event2.Source, response1.Source);
@@ -78,7 +76,7 @@ namespace EventService.UnitTests
             Assert.Equal(event2.Message, response1.Message);
             Assert.Equal(event2.StatusCode, response1.StatusCode);
             Assert.Equal(event2.StatusCodeText, response1.StatusCodeText);
-            var response2 = responseList[1];
+            var response2 = responseContentObject[1];
             Assert.Equal(event1.Id, response2.Id);
             Assert.Equal(event1.Timestamp, response2.Timestamp);
             Assert.Equal(event1.Source, response2.Source);
@@ -86,6 +84,13 @@ namespace EventService.UnitTests
             Assert.Equal(event1.Message, response2.Message);
             Assert.Equal(event1.StatusCode, response2.StatusCode);
             Assert.Equal(event1.StatusCodeText, response2.StatusCodeText);
+
+            Assert.Equal(2L, _factory.CountTableRows(schemaName, tableName));
+
+            // Rollback
+            _factory.DeleteById(schemaName, tableName, response1.Id);
+            _factory.DeleteById(schemaName, tableName, response2.Id);
         }
+
     }
 }
