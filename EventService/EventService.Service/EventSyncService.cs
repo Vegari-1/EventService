@@ -37,7 +37,7 @@ namespace EventService.Service
                     StatusCode = entity.StatusCode,
                     StatusCodeText = entity.StatusCodeText
                 };
-                return _eventRepository.Save(entityEvent);
+                _eventRepository.Save(entityEvent);
             }
             return Task.CompletedTask;
         }
