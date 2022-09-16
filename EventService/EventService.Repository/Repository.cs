@@ -11,11 +11,18 @@ namespace EventService.Repository
             _context = context;
         }
 
-        public async Task<T> Save(T entity)
+        public async Task<T> SaveAsync(T entity)
         {
             await _context.Set<T>().AddAsync(entity);
             await _context.SaveChangesAsync();
 
+            return entity;
+        }
+
+        public T Save(T entity)
+        {
+            _context.Set<T>().Add(entity);
+            _context.SaveChanges();
             return entity;
         }
 
