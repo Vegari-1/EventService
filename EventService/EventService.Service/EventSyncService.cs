@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EventService.Service
 {
-    public class EventSyncService : ConsumerBase<Event, ProfileContract>, IEventSyncService
+    public class EventSyncService : ConsumerBase<Event, EventContract>, IEventSyncService
     {
         private readonly IMessageBusService _messageBusService;
         private readonly IEventRepository _eventRepository;
@@ -24,20 +24,18 @@ namespace EventService.Service
             throw new NotImplementedException();
         }
 
-        public override Task SynchronizeAsync(ProfileContract entity, string action)
+        public override Task SynchronizeAsync(EventContract entity, string action)
         {
-            // promena contracta -> treba nam event
             if (action == Events.Created)
             {
                 Event entityEvent = new Event
                 {
-                    Id = Guid.NewGuid(),
-                    Timestamp = DateTime.Now,
-                    Source = "AuthService",
-                    RequestType = "POST",
-                    Message = "poruka",
-                    StatusCode = 201,
-                    StatusCodeText = "Created"
+                    Timestamp = entity.Timestamp,
+                    Source = entity.Source,
+                    RequestType = entity.RequestType,
+                    Message = entity.Message,
+                    StatusCode = entity.StatusCode,
+                    StatusCodeText = entity.StatusCodeText
                 };
                 return _eventRepository.Save(entityEvent);
             }
