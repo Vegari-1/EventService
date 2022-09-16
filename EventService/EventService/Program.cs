@@ -12,6 +12,7 @@ using EventService.Messaging;
 using EventService.Repository;
 using EventService.Repository.Interface;
 using EventService.Service.Interface;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,8 +24,10 @@ builder.Logging.AddConsole();
 builder.Configuration.AddEnvironmentVariables();
 
 // Nats
-builder.Services.AddSingleton<IMessageBusService, MessageBusService>();
 builder.Services.Configure<MessageBusSettings>(builder.Configuration.GetSection("Nats"));
+builder.Services.AddSingleton<IMessageBusSettings>(serviceProvider =>
+    serviceProvider.GetRequiredService<IOptions<MessageBusSettings>>().Value);
+builder.Services.AddSingleton<IMessageBusService, MessageBusService>();
 builder.Services.AddHostedService<EventMessageBusService>();
 
 // Postgres
@@ -82,11 +85,6 @@ builder.Services.AddSingleton<ITracer>(sp =>
 builder.Services.Configure<HttpHandlerDiagnosticOptions>(options =>
         options.OperationNameResolver =
             request => $"{request.Method.Method}: {request?.RequestUri?.AbsoluteUri}");
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(80);
-});
 
 var app = builder.Build();
 

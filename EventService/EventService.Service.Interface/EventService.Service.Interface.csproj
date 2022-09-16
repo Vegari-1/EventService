@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BusService" Version="1.0.0-dev.8" />
+    <PackageReference Include="BusService" Version="1.0.0-dev.12" />
   </ItemGroup>
 
   <ItemGroup>

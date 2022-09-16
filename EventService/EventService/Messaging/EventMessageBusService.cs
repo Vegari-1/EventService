@@ -14,8 +14,7 @@ namespace EventService.Messaging
         protected override void ConfigureSubscribers()
         {
             var policy = BuildPolicy();
-            // Novi topic -> Topics.Event
-            Subscribers.Add(new MessageBusSubscriber(policy, SubjectBuilder.Build(Topics.Profile), typeof(IEventSyncService)));
+            Subscribers.Add(new MessageBusSubscriber(policy, SubjectBuilder.Build(Topics.Event), typeof(IEventSyncService)));
         }
 
         private Policy BuildPolicy()
